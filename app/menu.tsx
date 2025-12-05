@@ -81,9 +81,21 @@ export default function MenuScreen() {
           <MenuItem icon="location-outline" title="Addresses" />
           <MenuItem icon="card-outline" title="Payment Methods" />
           <MenuItem icon="notifications-outline" title="Notifications" />
-          <MenuItem icon="help-circle-outline" title="Help & Support" />
-          <MenuItem icon="document-text-outline" title="Terms & Conditions" />
-          <MenuItem icon="shield-checkmark-outline" title="Privacy Policy" />
+          <MenuItem
+            icon="help-circle-outline"
+            title="Help & Support"
+            onPress={() => router.push({ pathname: '/info', params: { type: 'help' } })}
+          />
+          <MenuItem
+            icon="document-text-outline"
+            title="Terms & Conditions"
+            onPress={() => router.push({ pathname: '/info', params: { type: 'terms' } })}
+          />
+          <MenuItem
+            icon="shield-checkmark-outline"
+            title="Privacy Policy"
+            onPress={() => router.push({ pathname: '/info', params: { type: 'privacy' } })}
+          />
         </View>
 
         {/* Wishlist Preview */}

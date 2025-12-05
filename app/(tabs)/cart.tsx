@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  TextInput,
+  ActivityIndicator,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,6 +16,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, FontSize, FontWeight, BorderRadius } from '@/constants/theme';
 import { useApp } from '@/context/AppContext';
 import { CartItem } from '@/types';
+
+// Valid promo codes
+const PROMO_CODES: { [key: string]: { discount: number; type: 'percent' | 'fixed' } } = {
+  'SAVE10': { discount: 10, type: 'percent' },
+  'SAVE20': { discount: 20, type: 'percent' },
+  'WELCOME': { discount: 15, type: 'percent' },
+  'FLAT25': { discount: 25, type: 'fixed' },
+};
 
 interface CartItemCardProps {
   item: CartItem;
@@ -75,29 +85,75 @@ export default function CartScreen() {
   const router = useRouter();
   const { cartItems, updateCartQuantity, removeFromCart, getCartTotal, clearCart } = useApp();
 
+  const [promoCode, setPromoCode] = useState('');
+  const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+
   const subtotal = getCartTotal();
   const shipping = subtotal > 50 ? 0 : 5.99;
-  const total = subtotal + shipping;
+
+  // Calculate discount
+  const calculateDiscount = () => {
+    if (!appliedPromo || !PROMO_CODES[appliedPromo]) return 0;
+    const promo = PROMO_CODES[appliedPromo];
+    if (promo.type === 'percent') {
+      return (subtotal * promo.discount) / 100;
+    }
+    return Math.min(promo.discount, subtotal);
+  };
+
+  const discount = calculateDiscount();
+  const total = subtotal - discount + shipping;
+
+  const handleApplyPromo = () => {
+    const code = promoCode.trim().toUpperCase();
+    if (!code) {
+      setPromoError('Please enter a promo code');
+      return;
+    }
+    if (PROMO_CODES[code]) {
+      setAppliedPromo(code);
+      setPromoError(null);
+      setPromoCode('');
+    } else {
+      setPromoError('Invalid promo code');
+      setAppliedPromo(null);
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoError(null);
+  };
 
   const handleCheckout = () => {
     if (cartItems.length === 0) {
       Alert.alert('Cart is empty', 'Add some items to your cart first!');
       return;
     }
-    Alert.alert(
-      'Checkout',
-      `Your order total is $${total.toFixed(2)}. This is a demo app.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Complete Order',
-          onPress: () => {
-            clearCart();
-            Alert.alert('Order Placed!', 'Thank you for your purchase.');
+
+    setIsCheckingOut(true);
+
+    // Simulate checkout process
+    setTimeout(() => {
+      setIsCheckingOut(false);
+      Alert.alert(
+        'Checkout',
+        `Your order total is $${total.toFixed(2)}. This is a demo app.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Complete Order',
+            onPress: () => {
+              clearCart();
+              setAppliedPromo(null);
+              Alert.alert('Order Placed!', 'Thank you for your purchase.');
+            },
           },
-        },
-      ]
-    );
+        ]
+      );
+    }, 1500);
   };
 
   const handleRemoveItem = (productId: string, productName: string) => {
@@ -141,12 +197,62 @@ export default function CartScreen() {
               />
             ))}
 
+            {/* Promo Code Section */}
+            <View style={styles.promoSection}>
+              <Text style={styles.promoTitle}>PROMO CODE</Text>
+              {appliedPromo ? (
+                <View style={styles.appliedPromoContainer}>
+                  <View style={styles.appliedPromo}>
+                    <Ionicons name="checkmark-circle" size={20} color={Colors.success} />
+                    <Text style={styles.appliedPromoText}>
+                      {appliedPromo} applied (-${discount.toFixed(2)})
+                    </Text>
+                  </View>
+                  <TouchableOpacity onPress={handleRemovePromo}>
+                    <Text style={styles.removePromoText}>Remove</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View style={styles.promoInputContainer}>
+                  <TextInput
+                    style={styles.promoInput}
+                    placeholder="Enter promo code"
+                    placeholderTextColor={Colors.textMuted}
+                    value={promoCode}
+                    onChangeText={(text) => {
+                      setPromoCode(text);
+                      setPromoError(null);
+                    }}
+                    autoCapitalize="characters"
+                    returnKeyType="done"
+                    onSubmitEditing={handleApplyPromo}
+                  />
+                  <TouchableOpacity
+                    style={styles.promoApplyButton}
+                    onPress={handleApplyPromo}
+                  >
+                    <Text style={styles.promoApplyText}>APPLY</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+              {promoError && <Text style={styles.promoError}>{promoError}</Text>}
+              <Text style={styles.promoHint}>Try: SAVE10, SAVE20, WELCOME, FLAT25</Text>
+            </View>
+
             {/* Order Summary */}
             <View style={styles.summary}>
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Subtotal</Text>
                 <Text style={styles.summaryValue}>${subtotal.toFixed(2)}</Text>
               </View>
+              {discount > 0 && (
+                <View style={styles.summaryRow}>
+                  <Text style={[styles.summaryLabel, styles.discountLabel]}>Discount</Text>
+                  <Text style={[styles.summaryValue, styles.discountValue]}>
+                    -${discount.toFixed(2)}
+                  </Text>
+                </View>
+              )}
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Shipping</Text>
                 <Text style={styles.summaryValue}>
@@ -168,11 +274,19 @@ export default function CartScreen() {
           {/* Checkout Button */}
           <View style={[styles.footer, { paddingBottom: insets.bottom + Spacing.md }]}>
             <TouchableOpacity
-              style={styles.checkoutButton}
+              style={[styles.checkoutButton, isCheckingOut && styles.checkoutButtonDisabled]}
               onPress={handleCheckout}
               activeOpacity={0.9}
+              disabled={isCheckingOut}
             >
-              <Text style={styles.checkoutText}>CHECKOUT</Text>
+              {isCheckingOut ? (
+                <View style={styles.checkoutLoading}>
+                  <ActivityIndicator size="small" color={Colors.secondary} />
+                  <Text style={styles.checkoutText}>PROCESSING...</Text>
+                </View>
+              ) : (
+                <Text style={styles.checkoutText}>CHECKOUT</Text>
+              )}
             </TouchableOpacity>
             <Text style={styles.afterpayText}>
               or 4 interest-free payments with Afterpay
@@ -279,6 +393,77 @@ const styles = StyleSheet.create({
   removeButton: {
     padding: Spacing.xs,
   },
+  // Promo Code Styles
+  promoSection: {
+    padding: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
+  },
+  promoTitle: {
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.bold,
+    color: Colors.text,
+    letterSpacing: 1,
+    marginBottom: Spacing.sm,
+  },
+  promoInputContainer: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  promoInput: {
+    flex: 1,
+    height: 44,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.sm,
+    paddingHorizontal: Spacing.md,
+    fontSize: FontSize.sm,
+    color: Colors.text,
+  },
+  promoApplyButton: {
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: BorderRadius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  promoApplyText: {
+    color: Colors.secondary,
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.bold,
+    letterSpacing: 0.5,
+  },
+  appliedPromoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  appliedPromo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  appliedPromoText: {
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.medium,
+    color: Colors.success,
+  },
+  removePromoText: {
+    fontSize: FontSize.sm,
+    color: Colors.error,
+    fontWeight: FontWeight.medium,
+  },
+  promoError: {
+    fontSize: FontSize.xs,
+    color: Colors.error,
+    marginTop: Spacing.xs,
+  },
+  promoHint: {
+    fontSize: FontSize.xs,
+    color: Colors.textMuted,
+    marginTop: Spacing.xs,
+  },
+  // Summary Styles
   summary: {
     padding: Spacing.md,
     marginTop: Spacing.md,
@@ -299,6 +484,12 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
     fontWeight: FontWeight.medium,
     color: Colors.text,
+  },
+  discountLabel: {
+    color: Colors.success,
+  },
+  discountValue: {
+    color: Colors.success,
   },
   freeShippingNote: {
     fontSize: FontSize.xs,
@@ -334,6 +525,14 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.md,
     borderRadius: BorderRadius.sm,
     alignItems: 'center',
+  },
+  checkoutButtonDisabled: {
+    opacity: 0.7,
+  },
+  checkoutLoading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
   },
   checkoutText: {
     color: Colors.secondary,
