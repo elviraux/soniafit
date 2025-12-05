@@ -1,0 +1,135 @@
+import React from 'react';
+import { Tabs } from 'expo-router';
+import { View, Text, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { Colors, FontSize, FontWeight, Spacing } from '@/constants/theme';
+import { useApp } from '@/context/AppContext';
+
+type IconName = React.ComponentProps<typeof Ionicons>['name'];
+
+interface TabIconProps {
+  name: IconName;
+  focused: boolean;
+  badge?: number;
+}
+
+function TabIcon({ name, focused, badge }: TabIconProps) {
+  return (
+    <View style={styles.iconContainer}>
+      <Ionicons
+        name={name}
+        size={24}
+        color={focused ? Colors.primary : Colors.textLight}
+      />
+      {badge !== undefined && badge > 0 && (
+        <View style={styles.badge}>
+          <Text style={styles.badgeText}>{badge > 99 ? '99+' : badge}</Text>
+        </View>
+      )}
+    </View>
+  );
+}
+
+export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+  const { getCartItemCount } = useApp();
+  const cartCount = getCartItemCount();
+
+  return (
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: Colors.primary,
+        tabBarInactiveTintColor: Colors.textLight,
+        tabBarLabelStyle: styles.tabLabel,
+        tabBarStyle: {
+          backgroundColor: Colors.background,
+          borderTopWidth: 1,
+          borderTopColor: Colors.borderLight,
+          paddingTop: Spacing.xs,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : Spacing.sm,
+          height: 60 + (insets.bottom > 0 ? insets.bottom : Spacing.sm),
+        },
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Home',
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name={focused ? 'home' : 'home-outline'} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="shop"
+        options={{
+          title: 'Shop',
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name={focused ? 'grid' : 'grid-outline'} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="search"
+        options={{
+          title: 'Search',
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name={focused ? 'search' : 'search-outline'} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name={focused ? 'person' : 'person-outline'} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="cart"
+        options={{
+          title: 'Cart',
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              name={focused ? 'bag' : 'bag-outline'}
+              focused={focused}
+              badge={cartCount}
+            />
+          ),
+        }}
+      />
+    </Tabs>
+  );
+}
+
+const styles = StyleSheet.create({
+  iconContainer: {
+    position: 'relative',
+  },
+  tabLabel: {
+    fontSize: FontSize.xs,
+    fontWeight: FontWeight.medium,
+    marginTop: 2,
+  },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -8,
+    backgroundColor: Colors.primary,
+    borderRadius: 10,
+    minWidth: 16,
+    height: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+  },
+  badgeText: {
+    color: Colors.secondary,
+    fontSize: 9,
+    fontWeight: FontWeight.bold,
+  },
+});
