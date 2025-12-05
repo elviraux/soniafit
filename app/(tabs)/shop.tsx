@@ -85,6 +85,7 @@ export default function ShopScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.categoryScrollView}
         contentContainerStyle={styles.categoryPills}
       >
         <TouchableOpacity
@@ -175,10 +176,14 @@ const styles = StyleSheet.create({
     height: 24,
     backgroundColor: Colors.border,
   },
+  categoryScrollView: {
+    flexGrow: 0,
+    marginTop: Spacing.lg,
+    marginBottom: Spacing.md,
+  },
   categoryPills: {
     paddingHorizontal: Spacing.md,
-    paddingTop: Spacing.lg,
-    paddingBottom: Spacing.md,
+    alignItems: 'center',
     gap: Spacing.sm,
   },
   categoryPill: {
