@@ -67,7 +67,7 @@ export default function TabLayout() {
         options={{
           title: 'Shop',
           tabBarIcon: ({ focused }) => (
-            <TabIcon name={focused ? 'grid' : 'grid-outline'} focused={focused} />
+            <TabIcon name={focused ? 'shirt' : 'shirt-outline'} focused={focused} />
           ),
         }}
       />
@@ -95,7 +95,7 @@ export default function TabLayout() {
           title: 'Cart',
           tabBarIcon: ({ focused }) => (
             <TabIcon
-              name={focused ? 'bag' : 'bag-outline'}
+              name={focused ? 'cart' : 'cart-outline'}
               focused={focused}
               badge={cartCount}
             />

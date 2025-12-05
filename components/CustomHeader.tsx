@@ -60,7 +60,7 @@ export default function CustomHeader({ showBack = false, title, showMenu = true 
           style={styles.iconButton}
           onPress={() => router.push('/(tabs)/cart')}
         >
-          <Ionicons name="bag-outline" size={24} color={Colors.primary} />
+          <Ionicons name="cart-outline" size={24} color={Colors.primary} />
           {cartCount > 0 && (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>{cartCount > 99 ? '99+' : cartCount}</Text>
