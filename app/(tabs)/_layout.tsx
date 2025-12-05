@@ -3,7 +3,7 @@ import { Tabs } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, FontSize, FontWeight, Spacing } from '@/constants/theme';
+import { Colors, FontWeight, Spacing } from '@/constants/theme';
 import { useApp } from '@/context/AppContext';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
@@ -43,13 +43,13 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: Colors.textLight,
         tabBarLabelStyle: styles.tabLabel,
+        tabBarItemStyle: styles.tabItem,
         tabBarStyle: {
           backgroundColor: Colors.background,
           borderTopWidth: 1,
           borderTopColor: Colors.borderLight,
-          paddingTop: Spacing.xs,
-          paddingBottom: insets.bottom > 0 ? insets.bottom : Spacing.sm,
-          height: 60 + (insets.bottom > 0 ? insets.bottom : Spacing.sm),
+          paddingBottom: insets.bottom,
+          height: 70 + insets.bottom,
         },
       }}
     >
@@ -109,27 +109,34 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   iconContainer: {
     position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabItem: {
+    paddingTop: Spacing.sm,
+    paddingBottom: Spacing.xs,
   },
   tabLabel: {
-    fontSize: FontSize.xs,
+    fontSize: 11,
     fontWeight: FontWeight.medium,
-    marginTop: 2,
+    marginTop: Spacing.xs,
+    letterSpacing: 0.3,
   },
   badge: {
     position: 'absolute',
-    top: -4,
-    right: -8,
+    top: -6,
+    right: -10,
     backgroundColor: Colors.primary,
     borderRadius: 10,
-    minWidth: 16,
-    height: 16,
+    minWidth: 18,
+    height: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 3,
+    paddingHorizontal: 4,
   },
   badgeText: {
     color: Colors.secondary,
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: FontWeight.bold,
   },
 });
