@@ -109,7 +109,7 @@ export default function ProductCard({ product, width = DEFAULT_CARD_WIDTH }: Pro
           onPress={handleQuickAddToCart}
         >
           <Ionicons
-            name="add"
+            name="cart-outline"
             size={20}
             color={Colors.primary}
           />
