@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -23,9 +23,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Colors, Spacing, FontSize, FontWeight, BorderRadius } from '@/constants/theme';
 import { useApp } from '@/context/AppContext';
-import { getProductById } from '@/data/products';
+import { getProductById, products } from '@/data/products';
+import ProductCard from '@/components/ProductCard';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const RELATED_CARD_WIDTH = 160;
 
 interface AccordionProps {
   title: string;
@@ -67,6 +69,14 @@ export default function ProductDetailScreen() {
 
   const product = getProductById(id || '');
   const isWishlisted = product ? isInWishlist(product.id) : false;
+
+  // Get related products from same category, excluding current product
+  const relatedProducts = useMemo(() => {
+    if (!product) return [];
+    return products
+      .filter(p => p.category === product.category && p.id !== product.id)
+      .slice(0, 6);
+  }, [product]);
 
   const heartScale = useSharedValue(1);
 
@@ -124,7 +134,7 @@ export default function ProductDetailScreen() {
           style={styles.headerButton}
           onPress={() => router.push('/(tabs)/cart')}
         >
-          <Ionicons name="bag-outline" size={24} color={Colors.primary} />
+          <Ionicons name="cart-outline" size={24} color={Colors.primary} />
         </TouchableOpacity>
       </View>
 
@@ -132,7 +142,7 @@ export default function ProductDetailScreen() {
         style={styles.scrollView}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: insets.bottom + 100 },
+          { paddingBottom: insets.bottom + Spacing.xl },
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -273,7 +283,7 @@ export default function ProductDetailScreen() {
                             key={star}
                             name={star <= review.rating ? 'star' : 'star-outline'}
                             size={14}
-                            color="#FFD700"
+                            color={Colors.text}
                           />
                         ))}
                       </View>
@@ -288,23 +298,27 @@ export default function ProductDetailScreen() {
             </Accordion>
           </View>
         </View>
-      </ScrollView>
 
-      {/* Sticky Add to Cart */}
-      <View
-        style={[
-          styles.stickyFooter,
-          { paddingBottom: insets.bottom > 0 ? insets.bottom : Spacing.md },
-        ]}
-      >
-        <TouchableOpacity
-          style={styles.stickyAddToCart}
-          onPress={handleAddToCart}
-          activeOpacity={0.9}
-        >
-          <Text style={styles.stickyAddToCartText}>ADD TO CART - ${(product.price * quantity).toFixed(2)}</Text>
-        </TouchableOpacity>
-      </View>
+        {/* Related Products Section */}
+        {relatedProducts.length > 0 && (
+          <View style={styles.relatedSection}>
+            <Text style={styles.relatedTitle}>YOU MAY ALSO LIKE</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.relatedScrollContent}
+            >
+              {relatedProducts.map((relatedProduct) => (
+                <ProductCard
+                  key={relatedProduct.id}
+                  product={relatedProduct}
+                  width={RELATED_CARD_WIDTH}
+                />
+              ))}
+            </ScrollView>
+          </View>
+        )}
+      </ScrollView>
     </View>
   );
 }
@@ -535,27 +549,23 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     marginTop: Spacing.xs,
   },
-  stickyFooter: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: Colors.background,
+  // Related Products Section
+  relatedSection: {
+    marginTop: Spacing.xl,
+    paddingTop: Spacing.lg,
     borderTopWidth: 1,
-    borderTopColor: Colors.borderLight,
-    paddingHorizontal: Spacing.md,
-    paddingTop: Spacing.md,
+    borderTopColor: Colors.border,
   },
-  stickyAddToCart: {
-    backgroundColor: Colors.primary,
-    paddingVertical: Spacing.md,
-    borderRadius: BorderRadius.sm,
-    alignItems: 'center',
-  },
-  stickyAddToCartText: {
-    color: Colors.secondary,
-    fontSize: FontSize.md,
+  relatedTitle: {
+    fontSize: FontSize.sm,
     fontWeight: FontWeight.bold,
-    letterSpacing: 1,
+    color: Colors.text,
+    letterSpacing: 1.5,
+    paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  relatedScrollContent: {
+    paddingHorizontal: Spacing.md,
+    gap: Spacing.md,
   },
 });
