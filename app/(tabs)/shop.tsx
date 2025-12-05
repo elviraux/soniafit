@@ -177,7 +177,8 @@ const styles = StyleSheet.create({
   },
   categoryPills: {
     paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.md,
     gap: Spacing.sm,
   },
   categoryPill: {
