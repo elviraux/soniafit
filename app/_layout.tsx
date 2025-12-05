@@ -25,6 +25,13 @@ export default function RootLayout() {
                 presentation: 'card',
               }}
             />
+            <Stack.Screen
+              name="menu"
+              options={{
+                headerShown: false,
+                presentation: 'modal',
+              }}
+            />
           </Stack>
         </AppProvider>
       </SafeAreaProvider>

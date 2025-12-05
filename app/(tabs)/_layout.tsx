@@ -81,15 +81,6 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ focused }) => (
-            <TabIcon name={focused ? 'person' : 'person-outline'} focused={focused} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="cart"
         options={{
           title: 'Cart',

@@ -33,8 +33,9 @@ export default function CustomHeader({ showBack = false, title, showMenu = true 
           onPress={() => {
             if (showBack) {
               router.back();
+            } else if (showMenu) {
+              router.push('/menu');
             }
-            // Menu functionality can be added later
           }}
         >
           {showBack ? (

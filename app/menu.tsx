@@ -8,6 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import ProductCard from '@/components/ProductCard';
 import { Colors, Spacing, FontSize, FontWeight, BorderRadius } from '@/constants/theme';
@@ -35,14 +36,28 @@ function MenuItem({ icon, title, onPress }: MenuItemProps) {
   );
 }
 
-export default function ProfileScreen() {
+export default function MenuScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { wishlist } = useApp();
 
   const wishlistProducts = products.filter((p) => wishlist.includes(p.id));
 
+  const handleClose = () => {
+    router.back();
+  };
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
+      {/* Modal Header with Close Button */}
+      <View style={styles.modalHeader}>
+        <View style={styles.headerPlaceholder} />
+        <Text style={styles.headerTitle}>MENU</Text>
+        <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
+          <Ionicons name="close" size={28} color={Colors.primary} />
+        </TouchableOpacity>
+      </View>
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -94,6 +109,32 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
+    height: 56,
+  },
+  headerPlaceholder: {
+    width: 40,
+    height: 40,
+  },
+  headerTitle: {
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.bold,
+    color: Colors.primary,
+    letterSpacing: 2,
+  },
+  closeButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   scrollView: {
     flex: 1,
