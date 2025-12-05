@@ -81,6 +81,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="wishlist"
+        options={{
+          title: 'Wishlist',
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name={focused ? 'heart' : 'heart-outline'} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="cart"
         options={{
           title: 'Cart',
