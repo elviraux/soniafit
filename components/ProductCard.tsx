@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Pressable } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Pressable, Alert } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,10 +26,11 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function ProductCard({ product, width = DEFAULT_CARD_WIDTH }: ProductCardProps) {
   const router = useRouter();
-  const { isInWishlist, toggleWishlist } = useApp();
+  const { isInWishlist, toggleWishlist, addToCart } = useApp();
   const isWishlisted = isInWishlist(product.id);
 
   const heartScale = useSharedValue(1);
+  const cartScale = useSharedValue(1);
 
   const handleWishlistPress = () => {
     heartScale.value = withSequence(
@@ -39,8 +40,36 @@ export default function ProductCard({ product, width = DEFAULT_CARD_WIDTH }: Pro
     toggleWishlist(product.id);
   };
 
+  const handleQuickAddToCart = () => {
+    cartScale.value = withSequence(
+      withSpring(1.3, { damping: 10, stiffness: 400 }),
+      withSpring(1, { damping: 10, stiffness: 400 })
+    );
+
+    addToCart(product, 1);
+
+    Alert.alert(
+      'Added to Cart',
+      `${product.name} has been added to your cart.`,
+      [
+        {
+          text: 'Continue Shopping',
+          style: 'cancel',
+        },
+        {
+          text: 'Go to Cart',
+          onPress: () => router.push('/(tabs)/cart'),
+        },
+      ]
+    );
+  };
+
   const heartAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: heartScale.value }],
+  }));
+
+  const cartAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: cartScale.value }],
   }));
 
   const handlePress = () => {
@@ -63,14 +92,26 @@ export default function ProductCard({ product, width = DEFAULT_CARD_WIDTH }: Pro
           contentFit="cover"
           transition={200}
         />
+        {/* Wishlist Button - Top Right */}
         <AnimatedPressable
-          style={[styles.heartButton, heartAnimatedStyle]}
+          style={[styles.iconButton, styles.heartButton, heartAnimatedStyle]}
           onPress={handleWishlistPress}
         >
           <Ionicons
             name={isWishlisted ? 'heart' : 'heart-outline'}
             size={20}
             color={isWishlisted ? Colors.error : Colors.primary}
+          />
+        </AnimatedPressable>
+        {/* Quick Add to Cart Button - Bottom Right */}
+        <AnimatedPressable
+          style={[styles.iconButton, styles.cartButton, cartAnimatedStyle]}
+          onPress={handleQuickAddToCart}
+        >
+          <Ionicons
+            name="add"
+            size={20}
+            color={Colors.primary}
           />
         </AnimatedPressable>
       </View>
@@ -98,10 +139,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  heartButton: {
+  iconButton: {
     position: 'absolute',
-    top: Spacing.sm,
-    right: Spacing.sm,
     width: 32,
     height: 32,
     backgroundColor: Colors.background,
@@ -113,6 +152,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  heartButton: {
+    top: Spacing.sm,
+    right: Spacing.sm,
+  },
+  cartButton: {
+    bottom: Spacing.sm,
+    right: Spacing.sm,
   },
   info: {
     paddingTop: Spacing.sm,
