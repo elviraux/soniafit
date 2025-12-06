@@ -56,7 +56,7 @@ function CartItemCard({ item, onUpdateQuantity, onRemove }: CartItemCardProps) {
             {item.product.name}
           </Text>
         </TouchableOpacity>
-        <Text style={styles.itemPrice}>${item.product.price.toFixed(2)}</Text>
+        <Text style={styles.itemPrice}>${(item.product.price * item.quantity).toFixed(2)}</Text>
         <View style={styles.quantityContainer}>
           <TouchableOpacity
             style={styles.quantityButton}
