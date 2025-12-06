@@ -106,7 +106,20 @@ export default function ProductDetailScreen() {
 
   const handleAddToCart = () => {
     addToCart(product, quantity);
-    Alert.alert('Added to Cart', `${product.name} has been added to your cart.`);
+    Alert.alert(
+      'Added to Cart',
+      `${product.name} has been added to your cart.`,
+      [
+        {
+          text: 'Continue Shopping',
+          style: 'cancel',
+        },
+        {
+          text: 'Go to Cart',
+          onPress: () => router.push('/(tabs)/cart'),
+        },
+      ]
+    );
   };
 
   const handleWishlistPress = () => {
