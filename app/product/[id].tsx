@@ -25,6 +25,7 @@ import { Colors, Spacing, FontSize, FontWeight, BorderRadius } from '@/constants
 import { useApp } from '@/context/AppContext';
 import { getProductById, products } from '@/data/products';
 import ProductCard from '@/components/ProductCard';
+import CustomHeader from '@/components/CustomHeader';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const RELATED_CARD_WIDTH = 160;
@@ -134,22 +135,7 @@ export default function ProductDetailScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top }]}>
-        <TouchableOpacity
-          style={styles.headerButton}
-          onPress={() => router.back()}
-        >
-          <Ionicons name="arrow-back" size={24} color={Colors.primary} />
-        </TouchableOpacity>
-        <Text style={styles.headerLogo}>SONIA HOU</Text>
-        <TouchableOpacity
-          style={styles.headerButton}
-          onPress={() => router.push('/(tabs)/cart')}
-        >
-          <Ionicons name="cart-outline" size={24} color={Colors.primary} />
-        </TouchableOpacity>
-      </View>
+      <CustomHeader showBack />
 
       <ScrollView
         style={styles.scrollView}
@@ -360,28 +346,6 @@ const styles = StyleSheet.create({
     color: Colors.secondary,
     fontSize: FontSize.sm,
     fontWeight: FontWeight.bold,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.md,
-    paddingBottom: Spacing.sm,
-    backgroundColor: Colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.borderLight,
-  },
-  headerButton: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerLogo: {
-    fontSize: FontSize.lg,
-    fontWeight: FontWeight.bold,
-    color: Colors.primary,
-    letterSpacing: 2,
   },
   scrollView: {
     flex: 1,
